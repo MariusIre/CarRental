@@ -51,6 +51,42 @@ public abstract class Car {
         this.basePrice = basePrice;
     }
 
+    public void setIsCarRented(boolean isCarRented) {
+        this.isCarRented = isCarRented;
+    }
+
+    public String getMake() {
+        return make;
+    }
+
+    public String getModel() {
+        return model;
+    }
+
+    public BodyKit getBodyKit() {
+        return bodyKit;
+    }
+
+    public Engine getEngine() {
+        return engine;
+    }
+
+    public GearBox getGearBox() {
+        return gearBox;
+    }
+
+    public Integer getYear() {
+        return year;
+    }
+
+    public BigDecimal getBasePrice() {
+        return basePrice;
+    }
+
+    public Boolean getCarRented() {
+        return isCarRented;
+    }
+
     public void showCar() {
         int maxStringSize = 14;
         ArrayList<String> args = new ArrayList<>();
@@ -72,7 +108,6 @@ public abstract class Car {
                     emptySpace = emptySpace + " ";
                 }
                 System.out.printf("%s" + emptySpace, str);
-                System.out.print("| ");
             } else {
                 System.out.printf("%s", str);
             }

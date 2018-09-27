@@ -12,8 +12,9 @@ import java.util.Scanner;
 
 public class Shop {
     private ArrayList<Salesman> salesmens = new ArrayList<>();
-    private ArrayList<Car> availableCars = new ArrayList<>();
-    private ArrayList<Car> rentedCars = new ArrayList<>();
+    private ArrayList<Car> allCars = new ArrayList<>();
+    private Salesman salesmanInUse;
+    private boolean exitApp = false;
     private Scanner scan = new Scanner(System.in);
 
     private void generateSalesmas() {
@@ -23,9 +24,13 @@ public class Shop {
     }
 
     private void generateCars() {
-        availableCars.add(new LoganStandard("123", ColorType.BLACK, GearBoxType.MANUAL, 2015, new BigDecimal(1000)));
-        availableCars.add(new LoganStandard("234", ColorType.WHITE, GearBoxType.AUTOMATIC, 2018, new BigDecimal(1000)));
-        availableCars.add(new LoganStandard("345", ColorType.RED, GearBoxType.MANUAL, 2016, new BigDecimal(1000)));
+        allCars.add(new LoganStandard("123", ColorType.BLACK, GearBoxType.MANUAL, 2015, new BigDecimal(10000)));
+        allCars.add(new LoganStandard("234", ColorType.WHITE, GearBoxType.AUTOMATIC, 2018, new BigDecimal(15000)));
+        allCars.add(new LoganStandard("345", ColorType.RED, GearBoxType.MANUAL, 2016, new BigDecimal(11000)));
+        allCars.add(new LoganStandard("111", ColorType.DARKBLUE, GearBoxType.MANUAL, 2011, new BigDecimal(5000)));
+        allCars.add(new LoganStandard("222", ColorType.SILVER, GearBoxType.MANUAL, 2012, new BigDecimal(6000)));
+        allCars.get(1).setIsCarRented(true);
+        allCars.get(4).setIsCarRented(true);
     }
 
     private boolean login(String username, String password) {
@@ -33,6 +38,8 @@ public class Shop {
         for (Salesman salesman : salesmens) {
             if (username.equals(salesman.getUsername()) && password.equals(salesman.getPassword())) {
                 System.out.println(username + " successfully logged in.");
+                salesmanInUse = salesman;
+                salesmanInUse.setLoggedIn(true);
                 return true;
             }
         }
@@ -51,6 +58,15 @@ public class Shop {
         } while (!loginSuccessfull);
     }
 
+    private void logOut() {
+        salesmanInUse.setLoggedIn(false);
+        System.out.println("Successfully logged out.");
+    }
+
+    private void setExitApp (boolean exitApp) {
+        this.exitApp = exitApp;
+    }
+
     private void showMenu() {
 
         System.out.println(" -----------------------------------------------");
@@ -66,15 +82,89 @@ public class Shop {
         System.out.println("6. Exit");
     }
 
-    private void listAllCars() {
-        for (Car car : availableCars) {
+    private void anwerMenu () {
+        String answer = scan.nextLine();
+        switch (answer) {
+            case "1":
+                listAllCarsFromAList(allCars);
+                showListMenuOptions();
+                break;
+            case "2":
+                listAvailableCars();
+                showListMenuOptions();
+                break;
+            case "3":
+                listRentedCars();
+                showListMenuOptions();
+                break;
+            case "4":
+                System.out.println("Checking income.");
+                break;
+            case "5":
+                logOut();
+                break;
+            case "6":
+                setExitApp(true);
+                break;
+            default:
+                System.out.println("Incorrect input, try again.");
+        }
+    }
+
+    private void listAvailableCars() {
+        ArrayList<Car> availableCars = new ArrayList<>();
+        for(Car car : allCars) {
+            if(car.getCarRented()) {
+                availableCars.add(car);
+            }
+        }
+        listAllCarsFromAList(availableCars);
+    }
+
+    private void listRentedCars() {
+        ArrayList<Car> rentedCars = new ArrayList<>();
+        for(Car car : allCars) {
+            if(!car.getCarRented()) {
+                rentedCars.add(car);
+            }
+        }
+        listAllCarsFromAList(rentedCars);
+    }
+
+    private void listAllCarsFromAList(ArrayList<Car> cars) {
+        listCarsFrame();
+        for (Car car : cars) {
             car.showCar();
             System.out.println();
         }
     }
 
-    private void listMenuFrame() {
-
+    private void listCarsFrame() {
+        int maxStringSize = 14;
+        ArrayList<String> args = new ArrayList<>();
+        args.add("ChassisNo");
+        args.add("Make");
+        args.add("Model");
+        args.add("Engine Model");
+        args.add("Fuel");
+        args.add("Body");
+        args.add("Doors");
+        args.add("Gearbox");
+        args.add("Year");
+        args.add("Rented");
+        args.add("Price");
+        for (String str : args) {
+            if (maxStringSize > str.length()) {
+                String emptySpace = "";
+                for (int i = 0; i < maxStringSize - str.length(); i++) {
+                    emptySpace = emptySpace + " ";
+                }
+                System.out.printf("%s" + emptySpace, str);
+            } else {
+                System.out.printf("%s", str);
+            }
+        }
+        System.out.println();
     }
 
     private void showListMenuOptions() {
@@ -86,7 +176,11 @@ public class Shop {
         // TODO: add additional filter methods based on car specs
 
         System.out.println("4. Back to previous menu");
+        answerListMenuOptions();
+    }
 
+    private void answerListMenuOptions() {
+        String answer = scan.nextLine();
     }
 
     private void calculatePrice(int numberOfDays) {
@@ -102,8 +196,12 @@ public class Shop {
     public void run() {
         generateSalesmas();
         generateCars();
-        loginMenu();
-        showMenu();
-        listAllCars();
-}
+        do {
+            loginMenu();
+            do {
+                showMenu();
+                anwerMenu();
+            } while (salesmanInUse.getLoggedIn() && !exitApp);
+        }while (!exitApp);
+    }
 }

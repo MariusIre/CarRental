@@ -4,6 +4,7 @@ public class Salesman extends Person {
 
     private String username;
     private String password;
+    private boolean isLoggedIn;
 
     public Salesman(String firstName, String lastName, String username, String password) {
         super(firstName, lastName);
@@ -17,5 +18,13 @@ public class Salesman extends Person {
 
     public String getPassword() {
         return password;
+    }
+
+    public boolean getLoggedIn() {
+        return isLoggedIn;
+    }
+
+    public void setLoggedIn(boolean isLoggedIn){
+        this.isLoggedIn = isLoggedIn;
     }
 }
