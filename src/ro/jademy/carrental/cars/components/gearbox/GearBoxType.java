@@ -11,7 +11,7 @@ public enum GearBoxType {
         this.transmission = transmission;
     }
 
-    public String getTransmission() {
+    public String getName() {
         return transmission;
     }
 }

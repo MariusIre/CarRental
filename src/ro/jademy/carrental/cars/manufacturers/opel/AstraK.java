@@ -1,4 +1,4 @@
-package ro.jademy.carrental.cars.dacia;
+package ro.jademy.carrental.cars.manufacturers.opel;
 
 import ro.jademy.carrental.cars.components.BodyKit;
 import ro.jademy.carrental.cars.components.Engine;
@@ -11,11 +11,11 @@ import ro.jademy.carrental.cars.components.gearbox.GearBoxType;
 
 import java.math.BigDecimal;
 
-public class LoganStandard extends DaciaLogan {
+public class AstraK extends OpelAstra {
 
-    public LoganStandard(String chassisNo, ColorType colorType, GearBoxType gearBoxType, Integer year, BigDecimal basePrice) {
-        setBodyKit(new BodyKit(chassisNo, colorType, BodyKitType.SEDAN, DoorNumberType.FOUR));
-        setEngine(new Engine("1.2MPI", "75HP", FuelType.GASOLINE));
+    public AstraK(String chassisNo, ColorType colorType, GearBoxType gearBoxType, Integer year, BigDecimal basePrice) {
+        setBodyKit(new BodyKit(chassisNo, colorType, BodyKitType.HATCHBACK, DoorNumberType.FOUR));
+        setEngine(new Engine("1.5DCI", "105HP", FuelType.DIESEL));
         setGearBox(new GearBox(gearBoxType));
         setYear(year);
         setBasePrice(basePrice);

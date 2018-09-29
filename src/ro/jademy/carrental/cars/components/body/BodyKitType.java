@@ -8,13 +8,13 @@ public enum BodyKitType {
     WAGON("Convertible"),
     SUV("SUV");
 
-    private String bodyKit;
+    private String body;
 
-    BodyKitType(String bodyKit) {
-        this.bodyKit = bodyKit;
+    BodyKitType(String body) {
+        this.body = body;
     }
 
-    public String getBodyKit() {
-        return bodyKit;
+    public String getName() {
+        return body;
     }
 }

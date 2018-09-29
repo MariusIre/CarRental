@@ -3,6 +3,11 @@ package ro.jademy.carrental.cars;
 import ro.jademy.carrental.cars.components.BodyKit;
 import ro.jademy.carrental.cars.components.Engine;
 import ro.jademy.carrental.cars.components.GearBox;
+import ro.jademy.carrental.cars.specs.CarSpec;
+import ro.jademy.carrental.cars.specs.Make;
+import ro.jademy.carrental.cars.specs.Model;
+import ro.jademy.carrental.cars.specs.State;
+import ro.jademy.carrental.persons.Customer;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -10,25 +15,28 @@ import java.util.Objects;
 
 public abstract class Car {
 
-    private String make;
-    private String model;
+    private Make make;
+    private Model model;
     private BodyKit bodyKit;
     private Engine engine;
     private GearBox gearBox;
     private Integer year;
     private BigDecimal basePrice;
-    private Boolean isCarRented;
+    private State state;
+    private ArrayList<Customer> customers = new ArrayList<>();
 
     public Car() {
-        this.isCarRented = false;
+        this.state = State.AVAILABLE;
     }
 
-    public void setMake(String make) {
+    //--------------------------- SETTERS -----------------------------//
+
+    public void setMake(Make make) {
         this.make = make;
     }
 
     public void setModel(String model) {
-        this.model = model;
+        this.model = new Model(model);
     }
 
     public void setBodyKit(BodyKit bodyKit) {
@@ -51,20 +59,29 @@ public abstract class Car {
         this.basePrice = basePrice;
     }
 
-    public void setIsCarRented(boolean isCarRented) {
-        this.isCarRented = isCarRented;
+    public void setState(State state) {
+        this.state = state;
     }
 
+    //----------------------------- GETTERS ------------------------------//
+
     public String getMake() {
-        return make;
+        return make.getName();
     }
 
     public String getModel() {
-        return model;
+        return model.getName();
     }
 
-    public BodyKit getBodyKit() {
-        return bodyKit;
+    public String getChassisNo() {
+        return bodyKit.getChassisNo();
+    }
+
+    public String getBody() {
+        return bodyKit.getType().getName();}
+
+    public String getColor() {
+        return bodyKit.getColorType().getName();
     }
 
     public Engine getEngine() {
@@ -83,23 +100,60 @@ public abstract class Car {
         return basePrice;
     }
 
-    public Boolean getCarRented() {
-        return isCarRented;
+    public State getState() {
+        return state;
+    }
+
+    //---------------------------- FUNCTIONS -------------------------------//
+
+    /** Returns a string which is the value of a car attribute.
+     *  Returned value is based on parameter.
+     *  Parameter must be a value from Enum CarSpec
+     */
+    public String getFilter(CarSpec carSpec) {
+
+        switch (carSpec.getName()) {
+            case "Make":
+                return this.make.getName();
+            case "Body":
+                return this.bodyKit.getType().getName();
+            case "Budget":
+                return this.basePrice.toString();
+            case "Year":
+                return this.year.toString();
+            case "Fuel":
+                return this.engine.getFuelType().getName();
+            case "Transmission":
+                return this.gearBox.getType().getName();
+            case "State":
+                return this.state.getName();
+            default:
+                return "";
+        }
+    }
+
+    /** Add customer to car customers.
+     *  A car have a list of past customers.
+     *  If a car is currently rented the the last customer from customers array
+     *  is the customer in use.
+     */
+    public void addCustomerToCar(Customer customer) {
+        customers.add(customer);
     }
 
     public void showCar() {
         int maxStringSize = 14;
         ArrayList<String> args = new ArrayList<>();
         args.add(bodyKit.getChassisNo());
-        args.add(make);
-        args.add(model);
+        args.add(make.getName());
+        args.add(model.getName());
         args.add(engine.getModel());
-        args.add(engine.getFuelType().getFuelName());
-        args.add(bodyKit.getType().getBodyKit());
+        args.add(engine.getFuelType().getName());
+        args.add(bodyKit.getType().getName());
         args.add(bodyKit.getDoorNumberType().getNumberOfDoors() + "");
-        args.add(gearBox.getType().getTransmission());
+        args.add(gearBox.getType().getName());
         args.add(year.toString());
-        args.add(isCarRented.toString());
+        args.add(state.getName());
         args.add(basePrice.toString());
         for (String str : args) {
             if (maxStringSize > str.length()) {
