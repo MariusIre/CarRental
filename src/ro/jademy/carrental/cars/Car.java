@@ -5,7 +5,6 @@ import ro.jademy.carrental.cars.components.Engine;
 import ro.jademy.carrental.cars.components.GearBox;
 import ro.jademy.carrental.cars.specs.CarSpec;
 import ro.jademy.carrental.cars.specs.Make;
-import ro.jademy.carrental.cars.specs.Model;
 import ro.jademy.carrental.cars.specs.State;
 import ro.jademy.carrental.persons.Customer;
 
@@ -15,17 +14,22 @@ import java.util.Objects;
 
 public abstract class Car {
 
-    private Make make;
-    private Model model;
-    private BodyKit bodyKit;
-    private Engine engine;
-    private GearBox gearBox;
-    private Integer year;
-    private BigDecimal basePrice;
-    private State state;
-    private ArrayList<Customer> customers = new ArrayList<>();
+    protected Make make;
+    protected BodyKit bodyKit;
+    protected Engine engine;
+    protected GearBox gearBox;
+    protected Integer year;
+    protected BigDecimal basePrice;
+    protected State state;
+    protected ArrayList<Customer> customers = new ArrayList<>();
 
-    public Car() {
+    public Car(Make make, BodyKit bodyKit, Engine engine, GearBox gearBox, Integer year, int basePrice) {
+        this.make = make;
+        this.bodyKit = bodyKit;
+        this.engine = engine;
+        this.gearBox = gearBox;
+        this.year = year;
+        this.basePrice = new BigDecimal(basePrice);
         this.state = State.AVAILABLE;
     }
 
@@ -33,10 +37,6 @@ public abstract class Car {
 
     public void setMake(Make make) {
         this.make = make;
-    }
-
-    public void setModel(String model) {
-        this.model = new Model(model);
     }
 
     public void setBodyKit(BodyKit bodyKit) {
@@ -69,16 +69,13 @@ public abstract class Car {
         return make.getName();
     }
 
-    public String getModel() {
-        return model.getName();
-    }
-
     public String getChassisNo() {
         return bodyKit.getChassisNo();
     }
 
     public String getBody() {
-        return bodyKit.getType().getName();}
+        return bodyKit.getType().getName();
+    }
 
     public String getColor() {
         return bodyKit.getColorType().getName();
@@ -106,9 +103,10 @@ public abstract class Car {
 
     //---------------------------- FUNCTIONS -------------------------------//
 
-    /** Returns a string which is the value of a car attribute.
-     *  Returned value is based on parameter.
-     *  Parameter must be a value from Enum CarSpec
+    /**
+     * Returns a string which is the value of a car attribute.
+     * Returned value is based on parameter.
+     * Parameter must be a value from Enum CarSpec
      */
     public String getFilter(CarSpec carSpec) {
 
@@ -132,10 +130,11 @@ public abstract class Car {
         }
     }
 
-    /** Add customer to car customers.
-     *  A car have a list of past customers.
-     *  If a car is currently rented the the last customer from customers array
-     *  is the customer in use.
+    /**
+     * Add customer to car customers.
+     * A car have a list of past customers.
+     * If a car is currently rented the the last customer from customers array
+     * is the customer in use.
      */
     public void addCustomerToCar(Customer customer) {
         customers.add(customer);
@@ -146,7 +145,6 @@ public abstract class Car {
         ArrayList<String> args = new ArrayList<>();
         args.add(bodyKit.getChassisNo());
         args.add(make.getName());
-        args.add(model.getName());
         args.add(engine.getModel());
         args.add(engine.getFuelType().getName());
         args.add(bodyKit.getType().getName());

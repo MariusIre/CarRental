@@ -1,18 +1,20 @@
 package ro.jademy.carrental;
 
 import ro.jademy.carrental.cars.Car;
-import ro.jademy.carrental.cars.specs.CarSpec;
-import ro.jademy.carrental.cars.specs.Make;
+import ro.jademy.carrental.cars.DisplaysSorted;
 import ro.jademy.carrental.cars.components.body.BodyKitType;
 import ro.jademy.carrental.cars.components.body.ColorType;
 import ro.jademy.carrental.cars.components.engine.FuelType;
 import ro.jademy.carrental.cars.components.gearbox.GearBoxType;
 import ro.jademy.carrental.cars.manufacturers.dacia.LoganStandard;
 import ro.jademy.carrental.cars.manufacturers.opel.AstraK;
+import ro.jademy.carrental.cars.specs.CarSpec;
+import ro.jademy.carrental.cars.specs.Make;
 import ro.jademy.carrental.persons.Salesman;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 import static ro.jademy.carrental.cars.specs.CarSpec.STATE;
@@ -35,18 +37,18 @@ public class Shop {
     }
 
     private void generateCars() {
-        allCars.add(new LoganStandard("123", ColorType.BLACK, GearBoxType.MANUAL, 2015, new BigDecimal(10000)));
-        allCars.add(new LoganStandard("234", ColorType.WHITE, GearBoxType.AUTOMATIC, 2018, new BigDecimal(15000)));
-        allCars.add(new LoganStandard("345", ColorType.RED, GearBoxType.MANUAL, 2016, new BigDecimal(11000)));
-        allCars.add(new LoganStandard("111", ColorType.DARKBLUE, GearBoxType.MANUAL, 2011, new BigDecimal(5000)));
-        allCars.add(new LoganStandard("222", ColorType.SILVER, GearBoxType.MANUAL, 2012, new BigDecimal(6000)));
+        allCars.add(new LoganStandard("123", ColorType.BLACK, GearBoxType.MANUAL, 2015, 10000));
+        allCars.add(new LoganStandard("234", ColorType.WHITE, GearBoxType.AUTOMATIC, 2018, 15000));
+        allCars.add(new LoganStandard("345", ColorType.RED, GearBoxType.MANUAL, 2016, 11000));
+        allCars.add(new LoganStandard("111", ColorType.DARKBLUE, GearBoxType.MANUAL, 2011, 5000));
+        allCars.add(new LoganStandard("222", ColorType.SILVER, GearBoxType.MANUAL, 2012, 6000));
         allCars.get(1).setState(RENTED);
         allCars.get(4).setState(RENTED);
-        allCars.add(new AstraK("abc", ColorType.SILVER, GearBoxType.MANUAL, 2017, new BigDecimal(20000)));
-        allCars.add(new AstraK("qwe", ColorType.BLACK, GearBoxType.MANUAL, 2018, new BigDecimal(22000)));
-        allCars.add(new AstraK("zxc", ColorType.YELLOW, GearBoxType.MANUAL, 2016, new BigDecimal(18000)));
-        allCars.add(new AstraK("wer", ColorType.BLUE, GearBoxType.MANUAL, 2018, new BigDecimal(22000)));
-        allCars.add(new AstraK("dsa", ColorType.RED, GearBoxType.MANUAL, 2018, new BigDecimal(22000)));
+        allCars.add(new AstraK("abc", ColorType.SILVER, GearBoxType.MANUAL, 2017, 20000));
+        allCars.add(new AstraK("qwe", ColorType.BLACK, GearBoxType.MANUAL, 2018, 22000));
+        allCars.add(new AstraK("zxc", ColorType.YELLOW, GearBoxType.MANUAL, 2016, 18000));
+        allCars.add(new AstraK("wer", ColorType.BLUE, GearBoxType.MANUAL, 2018, 22000));
+        allCars.add(new AstraK("dsa", ColorType.RED, GearBoxType.MANUAL, 2018, 22000));
         allCars.get(7).setState(SERVICE);
     }
 
@@ -124,12 +126,11 @@ public class Shop {
 
     private void showSortMake() {
         System.out.println("\n                 SORT BY MAKE                  ");
-        System.out.println("1. Dacia");
-        System.out.println("2. Opel");
-        System.out.println("3. BMW");
-        System.out.println("4. Audi");
-        System.out.println("5. Mercedes");
-        answerSortMake();
+        List<Make> sortedMakeValues = Make.getSorteddList();
+        for (int i = 0; i < sortedMakeValues.size(); i++) {
+            System.out.println((i + 1) + ". " + sortedMakeValues.get(i).getName());
+        }
+        answerSortMake(sortedMakeValues);
         showAfterListing();
     }
 
@@ -276,29 +277,16 @@ public class Shop {
         }
     }
 
-    private void answerSortMake() {
+    private void answerSortMake(List<Make> sortedMakeValues) {
         String answer = scan.nextLine();
-        switch (answer) {
-            case "1":
-                filterCars(CarSpec.MAKE, Make.DACIA.getName());
-                break;
-            case "2":
-                filterCars(CarSpec.MAKE, Make.OPEL.getName());
-                break;
-            case "3":
-                filterCars(CarSpec.MAKE, Make.BMW.getName());
-                break;
-            case "4":
-                filterCars(CarSpec.MAKE, Make.AUDI.getName());
-                break;
-            case "5":
-                filterCars(CarSpec.MAKE, Make.MERCEDES.getName());
-                break;
-            default:
-                System.out.println("Incorrect input, try again.");
-                answerSortMake();
+        for (int i = 0; i < sortedMakeValues.size(); i++) {
+            if(answer.equals(sortedMakeValues.get(i).getName()))
+            filterCars(CarSpec.MAKE, sortedMakeValues.get(i).getName());
         }
+        System.out.println("Incorrect input, try again.");
+        answerSortMake(sortedMakeValues);
     }
+
 
     private void answerSortModel() {
         String answer = scan.nextLine();
@@ -323,7 +311,7 @@ public class Shop {
                 break;
             default:
                 System.out.println("Incorrect input, try again.");
-                answerSortMake();
+                //answerSortMake();
         }
 
     }
@@ -497,30 +485,38 @@ public class Shop {
             } while (salesmanInUse.getLoggedIn() && !exitApp);
         } while (!exitApp);
 
+
     }
 
     //----------------------- TESTS ----------------------------//
 
     //DYNAMIC MENU AND ANSWERS
-    private void showSortList(ArrayList<CarSpec> carSpecs) {
-        System.out.println("\nSelect an action from below:");
-        for (int i = 0; i <= carSpecs.size() + 1; i++) {
-            if (i == carSpecs.size() + 1) {
-                System.out.println(i + ". Return to previous menu");
-            } else {
-                System.out.println(i + ". " + carSpecs.get(i));
-            }
-        }
-        System.out.println();
 
-    }
+    /**
+     * private void showSortList() {
+     * System.out.println("\nSelect an action from below:");
+     * for (int i = 0; i <= carSpecs.size() + 1; i++) {
+     * if (i == carSpecs.size() + 1) {
+     * System.out.println(i + ". Return to previous menu");
+     * } else {
+     * System.out.println(i + ". " + carSpecs.get(i));
+     * }
+     * }
+     * System.out.println();
+     * <p>
+     * }
+     * <p>
+     * private void answerSort(ArrayList<CarSpec> carSpecs) {
+     * Integer answer = scan.nextInt();
+     * for (int i = 0; i <= carSpecs.size() + 1; i++) {
+     * for(CarSpec c : CarSpec.values()) {
+     * <p>
+     * }
+     * }
+     * }
+     */
 
-    private void answerSort(ArrayList<CarSpec> carSpecs) {
-        Integer answer = scan.nextInt();
-        for (int i = 0; i <= carSpecs.size() + 1; i++) {
-            if (answer == i) {
-                //showSortList();
-            }
-        }
+    private void showSortList(DisplaysSorted sorted) {
+        sorted.printList();
     }
 }

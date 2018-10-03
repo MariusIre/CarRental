@@ -13,11 +13,16 @@ import java.math.BigDecimal;
 
 public class LoganStandard extends DaciaLogan {
 
-    public LoganStandard(String chassisNo, ColorType colorType, GearBoxType gearBoxType, Integer year, BigDecimal basePrice) {
-        setBodyKit(new BodyKit(chassisNo, colorType, BodyKitType.SEDAN, DoorNumberType.FOUR));
-        setEngine(new Engine("1.2MPI", "75HP", FuelType.GASOLINE));
-        setGearBox(new GearBox(gearBoxType));
-        setYear(year);
-        setBasePrice(basePrice);
+
+    public LoganStandard(BodyKit bodyKit, Engine engine, GearBox gearBox, Integer year, int basePrice) {
+        super(bodyKit, engine, gearBox, year, basePrice);
+    }
+
+    public LoganStandard(String chassisNo, ColorType colorType, GearBoxType gearBoxType, Integer year, int basePrice) {
+        super(new BodyKit(chassisNo, colorType, BodyKitType.SEDAN, DoorNumberType.FOUR),
+                new Engine("1.2MPI", "75HP", FuelType.GASOLINE),
+                new GearBox(gearBoxType),
+                year,
+                basePrice);
     }
 }

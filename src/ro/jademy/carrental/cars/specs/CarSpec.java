@@ -1,7 +1,5 @@
 package ro.jademy.carrental.cars.specs;
 
-import java.util.ArrayList;
-
 public enum CarSpec {
     MAKE("Make"),
     BODY("Body"),
