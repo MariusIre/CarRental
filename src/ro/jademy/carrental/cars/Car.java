@@ -9,8 +9,7 @@ import ro.jademy.carrental.cars.specs.State;
 import ro.jademy.carrental.persons.Customer;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Objects;
+import java.util.*;
 
 public abstract class Car {
 
@@ -140,14 +139,17 @@ public abstract class Car {
         customers.add(customer);
     }
 
+    /**
+     * Prints in a line most important specs of a car
+     */
     public void showCar() {
         int maxStringSize = 14;
         ArrayList<String> args = new ArrayList<>();
         args.add(bodyKit.getChassisNo());
         args.add(make.getName());
+        args.add(bodyKit.getType().getName());
         args.add(engine.getModel());
         args.add(engine.getFuelType().getName());
-        args.add(bodyKit.getType().getName());
         args.add(bodyKit.getDoorNumberType().getNumberOfDoors() + "");
         args.add(gearBox.getType().getName());
         args.add(year.toString());
@@ -164,6 +166,35 @@ public abstract class Car {
                 System.out.printf("%s", str);
             }
         }
+    }
+
+    public void changeCarState(State state, Date startDate, int numberOfDays) {
+        Calendar cal = new GregorianCalendar();
+        cal.setTime(startDate);
+        cal.add(Calendar.DAY_OF_MONTH, numberOfDays);
+        changeCarState(state, startDate, cal.getTime());
+    }
+
+    public void changeCarState(State state, Date startDate, Date endDate) {
+        switch (state) {
+            case RENTED:
+                this.state = State.RENTED;
+                this.state.setDates(startDate, endDate);
+                break;
+            case SERVICE:
+                this.state = State.SERVICE;
+                this.state.setDates(startDate, endDate);
+                break;
+        }
+    }
+
+    public BigDecimal getPayment() {
+        int numberOfDays = daysBetween(state.getStartDate(), state.getEndDate());
+        return new BigDecimal(basePrice.intValue() * numberOfDays);
+    }
+
+    public int daysBetween(Date d1, Date d2) {
+        return (int) ((d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24));
     }
 
     @Override

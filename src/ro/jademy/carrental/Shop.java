@@ -7,15 +7,17 @@ import ro.jademy.carrental.cars.components.body.ColorType;
 import ro.jademy.carrental.cars.components.engine.FuelType;
 import ro.jademy.carrental.cars.components.gearbox.GearBoxType;
 import ro.jademy.carrental.cars.manufacturers.dacia.LoganStandard;
+import ro.jademy.carrental.cars.manufacturers.opel.AstraH;
 import ro.jademy.carrental.cars.manufacturers.opel.AstraK;
 import ro.jademy.carrental.cars.specs.CarSpec;
 import ro.jademy.carrental.cars.specs.Make;
+import ro.jademy.carrental.cars.specs.State;
+import ro.jademy.carrental.persons.Customer;
 import ro.jademy.carrental.persons.Salesman;
+import ro.jademy.carrental.treasury.Treasury;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 import static ro.jademy.carrental.cars.specs.CarSpec.STATE;
 import static ro.jademy.carrental.cars.specs.State.*;
@@ -25,8 +27,10 @@ public class Shop {
     private ArrayList<Car> allCars = new ArrayList<>();
     private Salesman salesmanInUse;
     private boolean exitApp = false;
-    private BigDecimal treasury = new BigDecimal(0);
-    private Scanner scan = new Scanner(System.in);
+    private Treasury treasury = new Treasury();
+
+    private Scanner scanString = new Scanner(System.in);
+    private Scanner scanInt = new Scanner(System.in);
 
     //------------------- SHOP MEMBERS ----------------------//
 
@@ -50,6 +54,7 @@ public class Shop {
         allCars.add(new AstraK("wer", ColorType.BLUE, GearBoxType.MANUAL, 2018, 22000));
         allCars.add(new AstraK("dsa", ColorType.RED, GearBoxType.MANUAL, 2018, 22000));
         allCars.get(7).setState(SERVICE);
+        allCars.add(new AstraH("LLL", ColorType.RED, GearBoxType.SWITCHABLE, 2018, 25000));
     }
 
     //----------------------- LOGIN --------------------------//
@@ -58,9 +63,9 @@ public class Shop {
         boolean loginSuccessfull;
         do {
             System.out.println("Username:");
-            String username = scan.nextLine();
+            String username = scanString.nextLine();
             System.out.println("Password:");
-            String password = scan.nextLine();
+            String password = scanString.nextLine();
             loginSuccessfull = login(username, password);
         } while (!loginSuccessfull);
     }
@@ -95,10 +100,11 @@ public class Shop {
         System.out.println("                    MAIN MENU                   ");
         System.out.println("1. List cars");
         System.out.println("2. Rent car");
-        System.out.println("3. Treasury");
-        System.out.println("4. Add/remove car");
-        System.out.println("5. Logout");
-        System.out.println("6. Exit");
+        System.out.println("3. Check car status");
+        System.out.println("4. Treasury");
+        System.out.println("5. Add/remove car");
+        System.out.println("6. Logout");
+        System.out.println("7. Exit");
         answerMenu();
     }
 
@@ -190,29 +196,29 @@ public class Shop {
     //------------------- MENU FUNCTIONS ---------------------//
 
     private void answerMenu() {
-        String answer = scan.nextLine();
+        String answer = scanString.nextLine();
         switch (answer) {
             case "1":
                 showListCarsMenu();
                 break;
             case "2":
-                rentCar();
+                rentCarMenu();
                 break;
             case "3":
-
-                //TODO: ADD MORE FUNCTIONS TO TREASURY
-
-                System.out.println(treasury);
+                checkCarStatus();
                 break;
             case "4":
+                showTreasuryMenu();
+                break;
+            case "5":
 
                 //TODO: ADD/REMOVE CAR FROM SHOP
 
                 break;
-            case "5":
+            case "6":
                 logOut();
                 break;
-            case "6":
+            case "7":
                 exitApp(true);
                 break;
             default:
@@ -221,7 +227,7 @@ public class Shop {
     }
 
     private void answerListCarsMenu() {
-        String answer = scan.nextLine();
+        String answer = scanString.nextLine();
         switch (answer) {
             case "1":
                 listAllCarsFromAList(allCars);
@@ -239,7 +245,7 @@ public class Shop {
                 filterCars(STATE, SERVICE.getName());
                 break;
             case "5":
-                showSortMenu();
+                showMenu();
                 break;
             default:
                 System.out.println("Incorrect input, please try again.");
@@ -248,7 +254,7 @@ public class Shop {
     }
 
     private void answerSortMenu() {
-        String answer = scan.nextLine();
+        String answer = scanString.nextLine();
         switch (answer) {
             case "1":
                 showSortMake();
@@ -278,18 +284,22 @@ public class Shop {
     }
 
     private void answerSortMake(List<Make> sortedMakeValues) {
-        String answer = scan.nextLine();
+        String answer = scanString.nextLine();
         for (int i = 0; i < sortedMakeValues.size(); i++) {
-            if(answer.equals(sortedMakeValues.get(i).getName()))
-            filterCars(CarSpec.MAKE, sortedMakeValues.get(i).getName());
+            String j = sortedMakeValues.indexOf(sortedMakeValues.get(i)) + 1 + "";
+            if (sortedMakeValues.get(i).getName().equalsIgnoreCase(answer)
+                    || sortedMakeValues.get(i).getName().toLowerCase().contains(answer.toLowerCase())
+                    || j.equals(answer)) {
+                filterCars(CarSpec.MAKE, sortedMakeValues.get(i).getName());
+                showSortMenu();
+            }
         }
         System.out.println("Incorrect input, try again.");
         answerSortMake(sortedMakeValues);
     }
 
-
     private void answerSortModel() {
-        String answer = scan.nextLine();
+        String answer = scanString.nextLine();
         switch (answer) {
             case "1":
                 filterCars(CarSpec.BODY, BodyKitType.SEDAN.getName());
@@ -321,7 +331,7 @@ public class Shop {
         // TODO: ADD SORTING BY BUDGET
         // @Think of a better way to represent car price
 
-        String answer = scan.nextLine();
+        String answer = scanString.nextLine();
         switch (answer) {
             case "1":
                 break;
@@ -341,7 +351,7 @@ public class Shop {
     }
 
     private void answerSortFuel() {
-        String answer = scan.nextLine();
+        String answer = scanString.nextLine();
         switch (answer) {
             case "1":
                 filterCars(CarSpec.FUEL, FuelType.GASOLINE.getName());
@@ -362,7 +372,7 @@ public class Shop {
     }
 
     private void answerSortTransmission() {
-        String answer = scan.nextLine();
+        String answer = scanString.nextLine();
         switch (answer) {
             case "1":
                 filterCars(CarSpec.TRANSMISSION, GearBoxType.AUTOMATIC.getName());
@@ -380,7 +390,7 @@ public class Shop {
     }
 
     private void answerAfterListing() {
-        String answer = scan.nextLine();
+        String answer = scanString.nextLine();
         switch (answer) {
             case "1":
                 showListCarsMenu();
@@ -395,16 +405,44 @@ public class Shop {
 
     //---------------- CAR RENTAL AND TREASURY ----------------//
 
-    // TODO: ADD TREASURY FUNCTIONS AND DISCOUNTS
+    private void rentCarMenu() {
+        System.out.println("Insert chassis number:");
+        String chassisNo = scanString.nextLine();
+        for (Car car : allCars) {
+            if (car.getChassisNo().equals(chassisNo) && car.getState().equals(State.AVAILABLE)) {
+                System.out.println("Insert customer first name:");
+                String firstName = scanString.nextLine();
+                System.out.println("Insert customer last name:");
+                String lastName = scanString.nextLine();
+                setCarState(car, State.RENTED);
+                Customer customer = new Customer(firstName, lastName);
+                car.addCustomerToCar(customer);
+                treasury.addPayment(customer,car.getPayment());
+                System.out.println("Car is rented");
+                showMenu();
+                return;
+            }
+        }
+        rentCarMenuA();
 
-    private void rentCar() {
-        // TODO: add car to customer
-        // TODO: add car value to treasury
+    }
 
-        System.out.println("Insert customer first name:");
-        String firstName = scan.nextLine();
-        System.out.println("Insert customer last name:");
-        String lastName = scan.nextLine();
+    private void rentCarMenuA() {
+        System.out.println("No car found or car not available, try again.");
+        System.out.println("1. Main menu");
+        System.out.println("2. Try another chassis");
+        int answer = scanInt.nextInt();
+        switch (answer) {
+            case 1:
+                showMenu();
+                break;
+            default:
+                rentCarMenu();
+        }
+    }
+
+    private void showTreasuryMenu() {
+        System.out.println("Money in basement(^.^)" + treasury.getMoney());
     }
 
     private void calculatePrice(int numberOfDays) {
@@ -439,14 +477,13 @@ public class Shop {
         args.add("ChassisNo");
         args.add("Make");
         args.add("Body");
-        args.add("Engine Body");
+        args.add("Engine");
         args.add("Fuel");
-        args.add("Body");
         args.add("Doors");
         args.add("Gearbox");
         args.add("Year");
         args.add("Rented");
-        args.add("Price");
+        args.add("Price/day");
         for (String str : args) {
             if (maxStringSize > str.length()) {
                 String emptySpace = "";
@@ -473,6 +510,52 @@ public class Shop {
             System.out.println("There are cars to display meeting the criteria.");
         }
 
+    }
+
+    private Date setADate() {
+        System.out.println("Insert day:");
+        int day = scanString.nextInt();
+        System.out.println("Insert month:");
+        int month = scanString.nextInt();
+        System.out.println("Insert year:");
+        int year = scanString.nextInt();
+        Calendar cal = new GregorianCalendar();
+        cal.set(year,month-1,day);
+        return cal.getTime();
+    }
+
+    private void checkCarStatus() {
+        System.out.println("Insert chassis number:");
+        String chassisNo = scanString.nextLine();
+        for (Car car : allCars) {
+            if (car.getChassisNo().equals(chassisNo)) {
+                car.showCar();
+                SimpleDateFormat dateFormatter = new SimpleDateFormat("EEEE, MMMM d, yyyy");
+                System.out.println("\nStarting date: " + dateFormatter.format(car.getState().getStartDate()) +
+                                    " ,Ending date: " + dateFormatter.format(car.getState().getEndDate()));
+            }
+        }
+    }
+
+    private void setCarState(Car car, State state) {
+
+        Date startDate = setADate();
+        System.out.println("1. Number of days");
+        System.out.println("2. End date");
+        int answers = scanInt.nextInt();
+        switch (answers) {
+            case 1:
+                System.out.println("Insert number of days:");
+                int numberOfDays = scanString.nextInt();
+                car.changeCarState(state, startDate, numberOfDays);
+                break;
+            case 2:
+                Date endDate = setADate();
+                car.changeCarState(state, startDate, endDate);
+                break;
+            default:
+                setCarState(car, state);
+        }
     }
 
     public void run() {
@@ -507,7 +590,7 @@ public class Shop {
      * }
      * <p>
      * private void answerSort(ArrayList<CarSpec> carSpecs) {
-     * Integer answer = scan.nextInt();
+     * Integer answer = scanString.nextInt();
      * for (int i = 0; i <= carSpecs.size() + 1; i++) {
      * for(CarSpec c : CarSpec.values()) {
      * <p>
