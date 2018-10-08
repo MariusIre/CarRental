@@ -3,6 +3,7 @@ package ro.jademy.carrental.cars;
 import ro.jademy.carrental.cars.components.BodyKit;
 import ro.jademy.carrental.cars.components.Engine;
 import ro.jademy.carrental.cars.components.GearBox;
+import ro.jademy.carrental.cars.specs.BasePrice;
 import ro.jademy.carrental.cars.specs.CarSpec;
 import ro.jademy.carrental.cars.specs.Make;
 import ro.jademy.carrental.cars.specs.State;
@@ -18,7 +19,7 @@ public abstract class Car {
     protected Engine engine;
     protected GearBox gearBox;
     protected Integer year;
-    protected BigDecimal basePrice;
+    protected BasePrice basePrice;
     protected State state;
     protected ArrayList<Customer> customers = new ArrayList<>();
 
@@ -28,7 +29,7 @@ public abstract class Car {
         this.engine = engine;
         this.gearBox = gearBox;
         this.year = year;
-        this.basePrice = new BigDecimal(basePrice);
+        this.basePrice = new BasePrice(new BigDecimal(basePrice));
         this.state = State.AVAILABLE;
     }
 
@@ -54,7 +55,7 @@ public abstract class Car {
         this.year = year;
     }
 
-    public void setBasePrice(BigDecimal basePrice) {
+    public void setBasePrice(BasePrice basePrice) {
         this.basePrice = basePrice;
     }
 
@@ -92,8 +93,8 @@ public abstract class Car {
         return year;
     }
 
-    public BigDecimal getBasePrice() {
-        return basePrice;
+    public int getBasePrice() {
+        return basePrice.getBasePrice();
     }
 
     public State getState() {
@@ -154,7 +155,7 @@ public abstract class Car {
         args.add(gearBox.getType().getName());
         args.add(year.toString());
         args.add(state.getName());
-        args.add(basePrice.toString());
+        args.add(basePrice.getBasePrice()/100 + " " + basePrice.getCurrency());
         for (String str : args) {
             if (maxStringSize > str.length()) {
                 String emptySpace = "";
@@ -185,16 +186,67 @@ public abstract class Car {
                 this.state = State.SERVICE;
                 this.state.setDates(startDate, endDate);
                 break;
+            case AVAILABLE:
+                this.state = State.AVAILABLE;
+                this.state.setDates(null, null);
         }
     }
 
-    public BigDecimal getPayment() {
+    /**Calculates number or working days and weekend days in a week
+     * and adds a 25% increase to price on weekend days.
+     *
+     * @return a BigDecimal containing the amount of money.
+     */
+    public BigDecimal getPrice() {
         int numberOfDays = daysBetween(state.getStartDate(), state.getEndDate());
-        return new BigDecimal(basePrice.intValue() * numberOfDays);
+        System.out.println("Number of days " + numberOfDays);
+        int numberOfWorkingDays = getWorkingDaysBetweenTwoDates(state.getStartDate(), state.getEndDate());
+        System.out.println("Number of working days " + numberOfWorkingDays);
+        int numberOfWeekendDays = numberOfDays - numberOfWorkingDays;
+        System.out.println("Number of weekend days " + numberOfWeekendDays);
+        BigDecimal price = new BigDecimal((basePrice.getBasePrice() * numberOfWorkingDays) +
+                ((basePrice.getBasePrice() * numberOfWeekendDays) * 125 / 100));
+        System.out.println("For the price of: " + price.intValue()/100 + " €");
+        return price;
     }
 
+    /**Calculates number of days between to dates.
+     * @param d1 - starting date
+     * @param d2 - end date
+     * @return number of days between to dates
+     */
     public int daysBetween(Date d1, Date d2) {
         return (int) ((d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24));
+    }
+
+    public static int getWorkingDaysBetweenTwoDates(Date startDate, Date endDate) {
+        Calendar startCal = Calendar.getInstance();
+        startCal.setTime(startDate);
+
+        Calendar endCal = Calendar.getInstance();
+        endCal.setTime(endDate);
+
+        int workDays = 0;
+
+        //Return 0 if start and end are the same
+        if (startCal.getTimeInMillis() == endCal.getTimeInMillis()) {
+            return 0;
+        }
+
+        if (startCal.getTimeInMillis() > endCal.getTimeInMillis()) {
+            startCal.setTime(endDate);
+            endCal.setTime(startDate);
+        }
+
+        do {
+            //excluding start date
+            startCal.add(Calendar.DAY_OF_MONTH, 1);
+            if (startCal.get(Calendar.DAY_OF_WEEK) != Calendar.SATURDAY && startCal.get(Calendar.DAY_OF_WEEK) != Calendar.SUNDAY) {
+                ++workDays;
+            }
+        } while (startCal.getTimeInMillis() < endCal.getTimeInMillis()); //excluding end date
+
+        return workDays;
     }
 
     @Override

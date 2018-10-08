@@ -16,6 +16,7 @@ import ro.jademy.carrental.persons.Customer;
 import ro.jademy.carrental.persons.Salesman;
 import ro.jademy.carrental.treasury.Treasury;
 
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -41,20 +42,17 @@ public class Shop {
     }
 
     private void generateCars() {
-        allCars.add(new LoganStandard("123", ColorType.BLACK, GearBoxType.MANUAL, 2015, 10000));
-        allCars.add(new LoganStandard("234", ColorType.WHITE, GearBoxType.AUTOMATIC, 2018, 15000));
-        allCars.add(new LoganStandard("345", ColorType.RED, GearBoxType.MANUAL, 2016, 11000));
-        allCars.add(new LoganStandard("111", ColorType.DARKBLUE, GearBoxType.MANUAL, 2011, 5000));
-        allCars.add(new LoganStandard("222", ColorType.SILVER, GearBoxType.MANUAL, 2012, 6000));
-        allCars.get(1).setState(RENTED);
-        allCars.get(4).setState(RENTED);
-        allCars.add(new AstraK("abc", ColorType.SILVER, GearBoxType.MANUAL, 2017, 20000));
-        allCars.add(new AstraK("qwe", ColorType.BLACK, GearBoxType.MANUAL, 2018, 22000));
-        allCars.add(new AstraK("zxc", ColorType.YELLOW, GearBoxType.MANUAL, 2016, 18000));
-        allCars.add(new AstraK("wer", ColorType.BLUE, GearBoxType.MANUAL, 2018, 22000));
-        allCars.add(new AstraK("dsa", ColorType.RED, GearBoxType.MANUAL, 2018, 22000));
-        allCars.get(7).setState(SERVICE);
-        allCars.add(new AstraH("LLL", ColorType.RED, GearBoxType.SWITCHABLE, 2018, 25000));
+        allCars.add(new LoganStandard("123", ColorType.BLACK, GearBoxType.MANUAL, 2015, 1000));
+        allCars.add(new LoganStandard("234", ColorType.WHITE, GearBoxType.AUTOMATIC, 2018, 1500));
+        allCars.add(new LoganStandard("345", ColorType.RED, GearBoxType.MANUAL, 2016, 1100));
+        allCars.add(new LoganStandard("111", ColorType.DARKBLUE, GearBoxType.MANUAL, 2011, 500));
+        allCars.add(new LoganStandard("222", ColorType.SILVER, GearBoxType.MANUAL, 2012, 600));
+        allCars.add(new AstraK("abc", ColorType.SILVER, GearBoxType.MANUAL, 2017, 2000));
+        allCars.add(new AstraK("qwe", ColorType.BLACK, GearBoxType.MANUAL, 2018, 2200));
+        allCars.add(new AstraK("zxc", ColorType.YELLOW, GearBoxType.MANUAL, 2016, 1800));
+        allCars.add(new AstraK("wer", ColorType.BLUE, GearBoxType.MANUAL, 2018, 2200));
+        allCars.add(new AstraK("dsa", ColorType.RED, GearBoxType.MANUAL, 2018, 2200));
+        allCars.add(new AstraH("LLL", ColorType.RED, GearBoxType.SWITCHABLE, 2018, 2500));
     }
 
     //----------------------- LOGIN --------------------------//
@@ -196,33 +194,34 @@ public class Shop {
     //------------------- MENU FUNCTIONS ---------------------//
 
     private void answerMenu() {
-        String answer = scanString.nextLine();
+        int answer = scanInt.nextInt();
         switch (answer) {
-            case "1":
+            case 1:
                 showListCarsMenu();
                 break;
-            case "2":
+            case 2:
                 rentCarMenu();
                 break;
-            case "3":
+            case 3:
                 checkCarStatus();
                 break;
-            case "4":
+            case 4:
                 showTreasuryMenu();
                 break;
-            case "5":
+            case 5:
 
                 //TODO: ADD/REMOVE CAR FROM SHOP
 
                 break;
-            case "6":
+            case 6:
                 logOut();
                 break;
-            case "7":
+            case 7:
                 exitApp(true);
                 break;
             default:
                 System.out.println("Incorrect input, try again.");
+                break;
         }
     }
 
@@ -406,6 +405,30 @@ public class Shop {
     //---------------- CAR RENTAL AND TREASURY ----------------//
 
     private void rentCarMenu() {
+        System.out.println("             CAR RENT MENU               ");
+        System.out.println("1. Rent car");
+        System.out.println("2. Calculate price");
+        System.out.println("3. Main menu");
+        int answer = scanInt.nextInt();
+        switch (answer) {
+            case 1:
+                rentCar();
+                break;
+            case 2:
+                calculatePrice();
+                break;
+            case 3:
+                showMenu();
+                break;
+            default:
+                System.out.println("Incorrect input, try again.");
+                rentCarMenu();
+                break;
+        }
+    }
+
+    private void rentCar() {
+        boolean carRented = false;
         System.out.println("Insert chassis number:");
         String chassisNo = scanString.nextLine();
         for (Car car : allCars) {
@@ -417,27 +440,23 @@ public class Shop {
                 setCarState(car, State.RENTED);
                 Customer customer = new Customer(firstName, lastName);
                 car.addCustomerToCar(customer);
-                treasury.addPayment(customer,car.getPayment());
-                System.out.println("Car is rented");
-                showMenu();
-                return;
+                treasury.addPayment(customer, car.getPrice());
+                System.out.println("Car successfully rented");
+                carRented = true;
             }
         }
-        rentCarMenuA();
-
-    }
-
-    private void rentCarMenuA() {
-        System.out.println("No car found or car not available, try again.");
-        System.out.println("1. Main menu");
-        System.out.println("2. Try another chassis");
-        int answer = scanInt.nextInt();
-        switch (answer) {
-            case 1:
-                showMenu();
-                break;
-            default:
-                rentCarMenu();
+        if (!carRented) {
+            System.out.println("No car found or car not available, try again.");
+            System.out.println("1. Main menu");
+            System.out.println("2. Try another chassis");
+            int answer = scanInt.nextInt();
+            switch (answer) {
+                case 1:
+                    showMenu();
+                    break;
+                default:
+                    rentCar();
+            }
         }
     }
 
@@ -445,7 +464,7 @@ public class Shop {
         System.out.println("Money in basement(^.^)" + treasury.getMoney());
     }
 
-    private void calculatePrice(int numberOfDays) {
+    private void calculatePrice() {
         // TODO: apply a discount to the base price of a car based on the number of rental days
         // TODO: document the implemented discount algorithm
 
@@ -453,6 +472,20 @@ public class Shop {
         //       weekdays and national holidays in which the discount should be smaller
 
         // Q: what should be the return type of this method?
+        System.out.println("Insert chassis no:");
+        String chassisNo = scanString.nextLine();
+        for (Car car : allCars) {
+            if (car.getChassisNo().equals(chassisNo)) {
+                setCarState(car, State.RENTED);
+                BigDecimal amount = car.getPrice();
+                listCarsFrame();
+                car.showCar();
+                System.out.println("\nPrice: " + amount.intValue());
+                setCarState(car, State.AVAILABLE);
+            }
+        }
+
+
     }
 
     //--------------- FILTERS AND SHOP FUNCTIONS --------------//
@@ -474,16 +507,16 @@ public class Shop {
     private void listCarsFrame() {
         int maxStringSize = 14;
         ArrayList<String> args = new ArrayList<>();
-        args.add("ChassisNo");
-        args.add("Make");
-        args.add("Body");
-        args.add("Engine");
-        args.add("Fuel");
-        args.add("Doors");
-        args.add("Gearbox");
-        args.add("Year");
-        args.add("Rented");
-        args.add("Price/day");
+        args.add("CHASSIS NO");
+        args.add("MAKE");
+        args.add("BODY");
+        args.add("ENGINE");
+        args.add("FUEL");
+        args.add("DOORS");
+        args.add("GEARBOX");
+        args.add("YEAR");
+        args.add("STATUS");
+        args.add("PRICE/DAY");
         for (String str : args) {
             if (maxStringSize > str.length()) {
                 String emptySpace = "";
@@ -520,7 +553,7 @@ public class Shop {
         System.out.println("Insert year:");
         int year = scanString.nextInt();
         Calendar cal = new GregorianCalendar();
-        cal.set(year,month-1,day);
+        cal.set(year, month - 1, day);
         return cal.getTime();
     }
 
@@ -529,16 +562,24 @@ public class Shop {
         String chassisNo = scanString.nextLine();
         for (Car car : allCars) {
             if (car.getChassisNo().equals(chassisNo)) {
+                listCarsFrame();
                 car.showCar();
-                SimpleDateFormat dateFormatter = new SimpleDateFormat("EEEE, MMMM d, yyyy");
-                System.out.println("\nStarting date: " + dateFormatter.format(car.getState().getStartDate()) +
-                                    " ,Ending date: " + dateFormatter.format(car.getState().getEndDate()));
+                if (car.getState().equals(State.RENTED) || car.getState().equals(State.SERVICE)) {
+                    SimpleDateFormat dateFormatter = new SimpleDateFormat("EEEE, MMMM d, yyyy");
+                    System.out.println("\n" + car.getState().getName());
+                    System.out.println("\nStarting date: " + dateFormatter.format(car.getState().getStartDate()) +
+                            "\nEnding date: " + dateFormatter.format(car.getState().getEndDate()));
+                }
+                System.out.println();
             }
         }
     }
 
     private void setCarState(Car car, State state) {
 
+        if (state.equals(State.AVAILABLE)) {
+            car.changeCarState(state, null, null);
+        }
         Date startDate = setADate();
         System.out.println("1. Number of days");
         System.out.println("2. End date");
